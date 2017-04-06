@@ -11,12 +11,16 @@
     "url": "https://github.com/dkunin/chanendler-bot/issues"
   },
   "scripts": {
-    "pretty": "prettier --single-quote --tab-width 4 --write ./*.js"
+    "pretty": "prettier --single-quote --tab-width 4 --write ./*.js",
+    "start": "node ./"
   },
   "homepage": "https://github.com/dkunin/chanendler-bot",
   "keywords": [],
   "license": "MIT",
   "dependencies": {
-    "node-telegram-bot-api": "0.27.0"
+    "node-telegram-bot-api": "0.27.0",
+    "stoic-api": "1.3.0",
+    "superagent": "3.5.2",
+    "thepiratebay": "1.3.5"
   }
 }

@@ -2,37 +2,43 @@
 const TelegramBot = require('node-telegram-bot-api');
 const token = process.env.CHANENDLER_BONG_BOT;
 const bot = new TelegramBot(token, { polling: true });
+const stoicapi = require('stoic-api');
+const currency = require('./currency');
+const PirateBay = require('thepiratebay');
 
-bot.onText(/\/echo (.+)/, (msg, match) => {
+
+bot.onText(/\/stoic/, msg => {
     const chatId = msg.chat.id;
-    const resp = match[1];
-    bot.sendMessage(chatId, resp);
+    bot.sendMessage(chatId, stoicapi.random());
 });
 
-bot.onText(/привет/, msg => {
+// tg://bot_command?command=smth
+
+bot.on('inline_query', response => {
+    PirateBay.search(response.query)
+        .then(results => {
+            const newResults = results.map(({ id, name, seeders, leechers, magnetLink }) => {
+                return {
+                    id,
+                    type: 'article',
+                    title: `${name} ${seeders} ${leechers}`,
+                    input_message_content: {
+                        message_text: magnetLink
+                    }
+                };
+            });
+            bot.answerInlineQuery(response.id, newResults);
+        })
+        .catch(err => console.log(err));
+});
+
+bot.onText(/\/conv (\d+) (\w{3}) (\w{3})/, (msg, match) => {
     const chatId = msg.chat.id;
-    bot.sendMessage(chatId, 'И вам не болеть');
+    currency(match[1], match[2], match[3]).then(response => {
+        bot.sendMessage(chatId, response);
+    });
 });
 
 // bot.on('message', msg => {
 //     const chatId = msg.chat.id;
 // });
-
-bot.on('inline_query', response => {
-    bot.answerInlineQuery(response.id, [
-        {
-            id: '1',
-            type: 'article',
-            title: 'Волшебный ларец винки-дого-мулозайцев',
-            input_message_content: {
-                message_text: 'Волшебный ларец винки-дого-мулозайцев'
-            }
-        },
-        {
-            id: '2',
-            type: 'article',
-            title: 'Шишкибаб',
-            input_message_content: { message_text: 'Шишкибаб' }
-        }
-    ]);
-});
