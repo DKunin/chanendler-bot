@@ -1,0 +1,22 @@
+{
+  "name": "chanendler-bot",
+  "version": "0.0.1",
+  "private": false,
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/dkunin/chanendler-bot.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dkunin/chanendler-bot/issues"
+  },
+  "scripts": {
+    "pretty": "prettier --single-quote --tab-width 4 --write ./*.js"
+  },
+  "homepage": "https://github.com/dkunin/chanendler-bot",
+  "keywords": [],
+  "license": "MIT",
+  "dependencies": {
+    "node-telegram-bot-api": "0.27.0"
+  }
+}
