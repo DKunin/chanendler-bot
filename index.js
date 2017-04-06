@@ -18,7 +18,21 @@ bot.onText(/привет/, msg => {
 //     const chatId = msg.chat.id;
 // });
 
-bot.on('inline_query', (id, from, location, query) => {
-    const chatId = from.id;
-    // bot.sendMessage(chatId, 'id, from, location, query');
+bot.on('inline_query', response => {
+    bot.answerInlineQuery(response.id, [
+        {
+            id: '1',
+            type: 'article',
+            title: 'Волшебный ларец винки-дого-мулозайцев',
+            input_message_content: {
+                message_text: 'Волшебный ларец винки-дого-мулозайцев'
+            }
+        },
+        {
+            id: '2',
+            type: 'article',
+            title: 'Шишкибаб',
+            input_message_content: { message_text: 'Шишкибаб' }
+        }
+    ]);
 });
