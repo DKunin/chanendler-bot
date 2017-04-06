@@ -17,3 +17,8 @@ bot.onText(/привет/, msg => {
 // bot.on('message', msg => {
 //     const chatId = msg.chat.id;
 // });
+
+bot.on('inline_query', (id, from, location, query) => {
+    const chatId = from.id;
+    // bot.sendMessage(chatId, 'id, from, location, query');
+});
