@@ -5,6 +5,7 @@ const bot = new TelegramBot(token, { polling: true });
 const stoicapi = require('stoic-api');
 const currency = require('./currency');
 const PirateBay = require('thepiratebay');
+const request = require('superagent');
 
 
 bot.onText(/\/stoic/, msg => {
@@ -12,8 +13,17 @@ bot.onText(/\/stoic/, msg => {
     bot.sendMessage(chatId, stoicapi.random());
 });
 
-// http://mgnet.me/api/create/?m=magnet:?xt=urn:btih:99944890e765e3163f51a53926c12298c2c07de4&dn=Archer.2009.S08E01.HDTV.x264-SVA&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Fzer0day.ch%3A1337&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969&format=xml
-// tg://bot_command?command=smth
+bot.onText(/\/shortenmagnet (.+)/, (msg, match) => {
+    const chatId = msg.chat.id;
+    request(`http://mgnet.me/api/create/?m=${match[1]}&format=json`)
+        .set('Accept', 'application/json')
+        .end((err, body) => {
+            const response = JSON.parse(body.text);
+            const { shorturl } = response;
+            console.log(response, shorturl);
+            bot.sendMessage(chatId, shorturl);
+        });
+});
 
 bot.on('inline_query', response => {
     PirateBay.search(response.query)
@@ -24,7 +34,8 @@ bot.on('inline_query', response => {
                     type: 'article',
                     title: `${name} ${seeders} ${leechers}`,
                     input_message_content: {
-                        message_text: magnetLink
+                        // tg://bot_command?command=
+                        message_text: `/shortenmagnet ${magnetLink}`
                     }
                 };
             });
