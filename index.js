@@ -1,6 +1,7 @@
 'use strict';
 const TelegramBot = require('node-telegram-bot-api');
 const token = process.env.CHANENDLER_BONG_BOT;
+const myChatId = process.env.PERSONAL_CHAT;
 const bot = new TelegramBot(token, { polling: true });
 const stoicapi = require('stoic-api');
 const currency = require('./currency');
@@ -20,7 +21,6 @@ bot.onText(/\/shortenmagnet (.+)/, (msg, match) => {
         .end((err, body) => {
             const response = JSON.parse(body.text);
             const { shorturl } = response;
-            console.log(response, shorturl);
             bot.sendMessage(chatId, shorturl);
         });
 });
@@ -50,6 +50,8 @@ bot.onText(/\/conv (\d+) (\w{3}) (\w{3})/, (msg, match) => {
         bot.sendMessage(chatId, response);
     });
 });
+
+bot.sendMessage(myChatId, 'Time to get schwifty!');
 
 // bot.on('message', msg => {
 //     const chatId = msg.chat.id;
