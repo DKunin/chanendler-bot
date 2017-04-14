@@ -2,12 +2,12 @@
 const TelegramBot = require('node-telegram-bot-api');
 const token = process.env.CHANENDLER_BONG_BOT;
 const myChatId = process.env.PERSONAL_CHAT;
+const magnetShortenerIP = process.env.CITADEL_IP;
 const bot = new TelegramBot(token, { polling: true });
 const stoicapi = require('stoic-api');
 const currency = require('./currency');
 const PirateBay = require('thepiratebay');
 const request = require('superagent');
-
 
 bot.onText(/\/stoic/, msg => {
     const chatId = msg.chat.id;
@@ -16,12 +16,10 @@ bot.onText(/\/stoic/, msg => {
 
 bot.onText(/\/shortenmagnet (.+)/, (msg, match) => {
     const chatId = msg.chat.id;
-    request(`http://mgnet.me/api/create/?m=${match[1]}&format=json`)
+    request(`http://${magnetShortenerIP}:3738/api/shorten?url=${escape(match[1])}`)
         .set('Accept', 'application/json')
         .end((err, body) => {
-            const response = JSON.parse(body.text);
-            const { shorturl } = response;
-            bot.sendMessage(chatId, shorturl);
+            bot.sendMessage(chatId, `http://${magnetShortenerIP}:3738/api/get?hash=${body.text}`);
         });
 });
 
