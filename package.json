@@ -1,6 +1,6 @@
 {
   "name": "chanendler-bot",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "private": false,
   "main": "index.js",
   "repository": {
@@ -12,7 +12,8 @@
   },
   "scripts": {
     "pretty": "prettier --single-quote --tab-width 4 --write ./*.js",
-    "start": "node ./"
+    "start": "node ./",
+    "test": "ava"
   },
   "homepage": "https://github.com/dkunin/chanendler-bot",
   "keywords": [],
@@ -22,5 +23,8 @@
     "stoic-api": "1.3.0",
     "superagent": "3.5.2",
     "thepiratebay": "1.3.5"
+  },
+  "devDependencies": {
+    "ava": "0.19.1"
   }
 }

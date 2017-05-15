@@ -1,4 +1,5 @@
 'use strict';
+
 const TelegramBot = require('node-telegram-bot-api');
 const token = process.env.CHANENDLER_BONG_BOT;
 const myChatId = process.env.PERSONAL_CHAT;
@@ -16,21 +17,32 @@ bot.onText(/\/stoic/, msg => {
 
 bot.onText(/\/shortenmagnet (.+)/, (msg, match) => {
     const chatId = msg.chat.id;
-    request(`http://${magnetShortenerIP}:3738/api/shorten?url=${escape(match[1])}`)
+    request(
+        `http://${magnetShortenerIP}:3738/api/shorten?url=${escape(match[1])}`
+    )
         .set('Accept', 'application/json')
         .end((err, body) => {
-            bot.sendMessage(chatId, `http://${magnetShortenerIP}:3738/api/get?hash=${body.text}`);
+            bot.sendMessage(
+                chatId,
+                `http://${magnetShortenerIP}:3738/api/get?hash=${body.text}`
+            );
         });
 });
 
 bot.on('inline_query', response => {
     PirateBay.search(response.query)
         .then(results => {
-            const newResults = results.map(({ id, name, seeders, leechers, magnetLink }) => {
+            const newResults = results.map(({
+                id,
+                name,
+                seeders,
+                leechers,
+                magnetLink
+            }) => {
                 return {
                     id,
                     type: 'article',
-                    title: `${name} ${seeders} ${leechers}`,
+                    title: `S:${seeders} L:${leechers} T:${name.slice(0, 35)}`,
                     input_message_content: {
                         // tg://bot_command?command=
                         message_text: `/shortenmagnet ${magnetLink}`
