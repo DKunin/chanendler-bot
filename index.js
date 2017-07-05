@@ -32,6 +32,7 @@ bot.onText(/\/shortenmagnet (.+)/, (msg, match) => {
 bot.on('inline_query', response => {
     PirateBay.search(response.query)
         .then(results => {
+            console.log(response, results);
             const newResults = results.map(({
                 id,
                 name,
