@@ -29,6 +29,20 @@ bot.onText(/\/shortenmagnet (.+)/, (msg, match) => {
         });
 });
 
+bot.onText(/\/sign (.+)/, (msg, match) => {
+    const chatId = msg.chat.id;
+    request(
+        `http://api.giphy.com/v1/gifs/search?api_key=dc6zaTOxFJmzC&q=sign%20with%20robert%20${escape(match[1])}`
+    )
+        .set('Accept', 'application/json')
+        .end((err, body) => {
+            bot.sendMessage(
+                chatId,
+                body.body.data[0].images.fixed_height_small.url.toString()
+            );
+        });
+});
+
 bot.on('inline_query', response => {
     PirateBay.search(response.query)
         .then(results => {
