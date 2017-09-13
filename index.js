@@ -15,10 +15,10 @@ bot.onText(/\/stoic/, msg => {
     bot.sendMessage(chatId, stoicapi.random());
 });
 
-bot.onText(/\/shortenmagnet (.+)/, (msg, match) => {
+bot.onText(/magnet:\?.+/, (msg, match) => {
     const chatId = msg.chat.id;
     request(
-        `http://${magnetShortenerIP}:3738/api/shorten?url=${escape(match[1])}`
+        `http://${magnetShortenerIP}:3738/api/shorten?url=${escape(match[0])}`
     )
         .set('Accept', 'application/json')
         .end((err, body) => {
@@ -49,31 +49,31 @@ bot.onText(/\/sign (.+)/, (msg, match) => {
     }
 });
 
-bot.on('inline_query', response => {
-    PirateBay.search(response.query)
-        .then(results => {
-            console.log(response, results);
-            const newResults = results.map(({
-                id,
-                name,
-                seeders,
-                leechers,
-                magnetLink
-            }) => {
-                return {
-                    id,
-                    type: 'article',
-                    title: `S:${seeders} L:${leechers} T:${name.slice(0, 35)}`,
-                    input_message_content: {
-                        // tg://bot_command?command=
-                        message_text: `/shortenmagnet ${magnetLink}`
-                    }
-                };
-            });
-            bot.answerInlineQuery(response.id, newResults);
-        })
-        .catch(err => console.log(err));
-});
+// bot.on('inline_query', response => {
+//     PirateBay.search(response.query)
+//         .then(results => {
+//             console.log(response, results);
+//             const newResults = results.map(({
+//                 id,
+//                 name,
+//                 seeders,
+//                 leechers,
+//                 magnetLink
+//             }) => {
+//                 return {
+//                     id,
+//                     type: 'article',
+//                     title: `S:${seeders} L:${leechers} T:${name.slice(0, 35)}`,
+//                     input_message_content: {
+//                         // tg://bot_command?command=
+//                         message_text: `/shortenmagnet ${magnetLink}`
+//                     }
+//                 };
+//             });
+//             bot.answerInlineQuery(response.id, newResults);
+//         })
+//         .catch(err => console.log(err));
+// });
 
 bot.onText(/\/conv (\d+) (\w{3}) (\w{3})/, (msg, match) => {
     const chatId = msg.chat.id;
