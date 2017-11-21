@@ -1,55 +1,46 @@
 'use strict';
 
 const TelegramBot = require('node-telegram-bot-api');
+const stoicapi = require('stoic-api');
+const currency = require('./utils/currency');
+const request = require('./utils/request');
+const logger = require('./utils/logger')();
 const token = process.env.CHANENDLER_BONG_BOT;
 const myChatId = process.env.PERSONAL_CHAT;
 const magnetShortenerIP = process.env.CITADEL_IP;
 const bot = new TelegramBot(token, { polling: true });
-const stoicapi = require('stoic-api');
-const currency = require('./currency');
-const request = require('superagent');
+const pirateGrabber = `http://${magnetShortenerIP}:3739/api/get`;
+const magShoUrl = `http://${magnetShortenerIP}:3738/api`;
 
-bot.onText(/\/stoic/, msg => {
-    const chatId = msg.chat.id;
+bot.onText(/\/stoic/, message => {
+    const chatId = message.chat.id;
+    logger.info(`recieved request /stoic, ${chatId}`);
     bot.sendMessage(chatId, stoicapi.random());
 });
 
-bot.onText(/magnet:\?.+/, (msg, match) => {
+bot.onText(/magnet:\?.+/, async (msg, match) => {
     const chatId = msg.chat.id;
-    request(
-        `http://${magnetShortenerIP}:3738/api/shorten?url=${escape(match[0])}`
-    )
-        .set('Accept', 'application/json')
-        .end((err, body) => {
-            bot.sendMessage(
-                chatId,
-                `http://${magnetShortenerIP}:3738/api/get?hash=${body.text}`
-            );
-        });
+    logger.info(`recieved request /magnet, ${chatId}`);
+    const query = escape(match[0]);
+    const { text: hash } = await request(`${magShoUrl}/shorten?url=${query}`);
+    bot.sendMessage(chatId, `${magShoUrl}/get?hash=${hash}`);
 });
 
-bot.onText(/episode (.+)/, (msg, match) => {
+bot.onText(/episode (.+)/, async (msg, match) => {
     const chatId = msg.chat.id;
-    request(
-        `http://${magnetShortenerIP}:3739/api/get?url=https://thepiratebay.org/search/${escape(match[0].replace('episode ', ''))}`
-    )
-        .set('Accept', 'application/json')
-        .end((err, body) => {
-            request(
-                `http://${magnetShortenerIP}:3738/api/shorten?url=${escape(body.text)}`
-            )
-                .set('Accept', 'application/json')
-                .end((err, body) => {
-                    bot.sendMessage(
-                        chatId,
-                        `http://${magnetShortenerIP}:3738/api/get?hash=${body.text}`
-                    );
-                });
-        });
+    logger.info(`recieved request /episode, ${chatId}`);
+    const query = escape(match[0].replace('episode ', ''));
+    const firstRequest = `${pirateGrabber}?url=https://thepiratebay.org/search/${query}`;
+    const { text: magnetUrl } = await request(firstRequest);
+    const { text: shortenedUrl } = await request(
+        `${magShoUrl}/shorten?url=${escape(magnetUrl)}`
+    );
+    bot.sendMessage(chatId, `${magShoUrl}/get?hash=${shortenedUrl}`);
 });
 
 bot.onText(/\/sign (.+)/, (msg, match) => {
     const chatId = msg.chat.id;
+    logger.info(`recieved request /sign, ${chatId}`);
     const word = match[1];
     if (word) {
         bot.sendMessage(chatId, '© 1996-2017 Jolanta Lapiak:');
@@ -62,11 +53,12 @@ bot.onText(/\/sign (.+)/, (msg, match) => {
     }
 });
 
-bot.onText(/\/conv (\d+) (\w{3}) (\w{3})/, (msg, match) => {
+bot.onText(/\/conv (\d+) (\w{3}) (\w{3})/, async (msg, match) => {
     const chatId = msg.chat.id;
-    currency(match[1], match[2], match[3]).then(response => {
-        bot.sendMessage(chatId, response);
-    });
+    logger.info(`recieved request /conv, ${chatId}`);
+    const response = await currency(match[1], match[2], match[3]);
+    bot.sendMessage(chatId, response);
 });
 
 bot.sendMessage(myChatId, 'Time to get schwifty!');
+logger.info('Chanendler Bong initiated');

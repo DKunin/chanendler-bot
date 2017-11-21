@@ -1,7 +1,7 @@
 'use strict';
 
 import test from 'ava';
-import currency from './currency';
+import currency from './utils/currency';
 
 test('simple conversation', async t => {
     const conv = currency(10, 'usd', 'rub');
