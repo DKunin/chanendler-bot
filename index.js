@@ -8,6 +8,7 @@ const logger = require('./utils/logger')();
 const token = process.env.CHANENDLER_BONG_BOT;
 const myChatId = process.env.PERSONAL_CHAT;
 const magnetShortenerIP = process.env.CITADEL_IP;
+const bookmarksWebHook = process.env.BOOKMARK_WEBHOOK;
 const bot = new TelegramBot(token, { polling: true });
 const pirateGrabber = `http://${magnetShortenerIP}:3739/api/get`;
 const magShoUrl = `http://${magnetShortenerIP}:3738/api`;
@@ -60,5 +61,39 @@ bot.onText(/\/conv (\d+) (\w{3}) (\w{3})/, async (msg, match) => {
     bot.sendMessage(chatId, response);
 });
 
-bot.sendMessage(myChatId, 'Time to get schwifty!');
+bot.onText(/\/start/, msg => {
+    bot.sendMessage(msg.chat.id, '...', {
+        reply_markup: {
+            resize_keyboard: true,
+            keyboard: [['/stoic', '/episode'], ['/conv', 'test'], ['edit']]
+        }
+    });
+});
+
+bot.on('inline_query', async function(msg) {
+    const input = msg.query;
+    const queryId = msg.id;
+
+    const bkm = await request(
+        `${bookmarksWebHook}/bookmarks?query=${input}&alfred=true`
+    );
+
+    const response = JSON.parse(bkm.text).items.map((singleLink, index) => {
+        return {
+            id: index,
+            type: 'article',
+            parse_mode: 'markdown',
+            title: singleLink.title,
+            message_text: singleLink.arg
+        };
+    });
+
+    if (input.length > 0) {
+        bot
+            .answerInlineQuery(queryId, response, {})
+            .then(res => console.log(res));
+    }
+});
+
+// bot.sendMessage(myChatId, 'Time to get schwifty!');
 logger.info('Chanendler Bong initiated');
