@@ -6,7 +6,6 @@ const currency = require('./utils/currency');
 const request = require('./utils/request');
 const logger = require('./utils/logger')();
 const token = process.env.CHANENDLER_BONG_BOT;
-const myChatId = process.env.PERSONAL_CHAT;
 const magnetShortenerIP = process.env.CITADEL_IP;
 const bookmarksWebHook = process.env.BOOKMARK_WEBHOOK;
 const bot = new TelegramBot(token, { polling: true });
@@ -95,5 +94,4 @@ bot.on('inline_query', async function(msg) {
     }
 });
 
-// bot.sendMessage(myChatId, 'Time to get schwifty!');
 logger.info('Chanendler Bong initiated');
