@@ -22,7 +22,9 @@ bot.onText(/magnet:\?.+/, async (msg, match) => {
     const chatId = msg.chat.id;
     logger.info(`recieved request /magnet, ${chatId}`);
     const query = escape(match[0]);
-    const { text: hash } = await request(`${magShoUrl}/shorten?url=${query}`);
+    const { text: hash } = await request(
+        `${magShoUrl}/shorten?url=${query}`
+    ).catch(err => logger.error(err));
     bot.sendMessage(chatId, `${magShoUrl}/get?hash=${hash}`);
 });
 
@@ -31,10 +33,12 @@ bot.onText(/episode (.+)/, async (msg, match) => {
     logger.info(`recieved request /episode, ${chatId}`);
     const query = escape(match[0].replace('episode ', ''));
     const firstRequest = `${pirateGrabber}?url=https://thepiratebay.org/search/${query}`;
-    const { text: magnetUrl } = await request(firstRequest);
+    const { text: magnetUrl } = await request(firstRequest).catch(err =>
+        logger.error(err)
+    );
     const { text: shortenedUrl } = await request(
         `${magShoUrl}/shorten?url=${escape(magnetUrl)}`
-    );
+    ).catch(err => logger.error(err));
     bot.sendMessage(chatId, `${magShoUrl}/get?hash=${shortenedUrl}`);
 });
 
@@ -75,7 +79,7 @@ bot.on('inline_query', async function(msg) {
 
     const bkm = await request(
         `${bookmarksWebHook}/bookmarks?query=${input}&alfred=true`
-    );
+    ).catch(err => logger.error(err));
 
     const response = JSON.parse(bkm.text).items.map((singleLink, index) => {
         return {
@@ -90,7 +94,8 @@ bot.on('inline_query', async function(msg) {
     if (input.length > 0) {
         bot
             .answerInlineQuery(queryId, response, {})
-            .then(res => console.log(res));
+            .then(res => logger.info(res))
+            .catch(err => logger.error(err));
     }
 });
 

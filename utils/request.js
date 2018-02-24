@@ -3,10 +3,13 @@
 const request = require('superagent');
 
 function asyncPromise(url) {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
         request(url)
             .set('Accept', 'application/json')
-            .end((err, body) => {
+            .end((error, body) => {
+                if (error) {
+                    reject(error);
+                }
                 resolve(body);
             });
     });
