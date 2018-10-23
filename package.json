@@ -19,12 +19,17 @@
   "keywords": [],
   "license": "MIT",
   "dependencies": {
+    "bcrypt": "3.0.2",
+    "body-parser": "1.18.3",
     "bunyan": "1.8.12",
+    "cors": "2.8.4",
     "express": "4.16.4",
     "install": "0.12.2",
+    "jsonwebtoken": "8.3.0",
     "node-telegram-bot-api": "0.30.0",
     "npm": "6.4.1",
     "oauth2-server": "3.0.1",
+    "sqlite3": "4.0.3",
     "stoic-api": "1.3.0",
     "superagent": "3.8.3"
   },
