@@ -92,8 +92,7 @@ bot.on('inline_query', async function(msg) {
     });
 
     if (input.length > 0) {
-        bot
-            .answerInlineQuery(queryId, response, {})
+        bot.answerInlineQuery(queryId, response, {})
             .then(res => logger.info(res))
             .catch(err => logger.error(err));
     }

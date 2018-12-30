@@ -4,9 +4,20 @@
 
 function InMemoryCache() {
     this.clients = [
-        { clientId: 'thom', clientSecret: 'nightworld', redirectUris: ['http://localhost:3131/authdone'], grants: 'authorization_code' }
+        {
+            clientId: 'thom',
+            clientSecret: 'nightworld',
+            redirectUris: ['http://localhost:3131/authdone'],
+            grants: 'authorization_code'
+        }
     ];
-    this.tokens = [{accessToken:'somestuff', user: {id: 0, name:'some'}, accessTokenExpiresAt: new Date(new Date().getTime() + (1000 * 8000))}];
+    this.tokens = [
+        {
+            accessToken: 'somestuff',
+            user: { id: 0, name: 'some' },
+            accessTokenExpiresAt: new Date(new Date().getTime() + 1000 * 8000)
+        }
+    ];
     this.users = [
         { id: '123', username: 'thomseddon', password: 'nightworld' }
     ];
