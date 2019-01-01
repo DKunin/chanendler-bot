@@ -1,22 +1,16 @@
 'use strict';
 
 const TelegramBot = require('node-telegram-bot-api');
-const stoicapi = require('stoic-api');
-const currency = require('./utils/currency');
+const torba = require('./utils/torba');
 const request = require('./utils/request');
 const logger = require('./utils/logger')();
+
 const token = process.env.CHANENDLER_BONG_BOT;
 const magnetShortenerIP = process.env.CITADEL_IP;
 const bookmarksWebHook = process.env.BOOKMARK_WEBHOOK;
-const bot = new TelegramBot(token, { polling: true });
-const pirateGrabber = `http://${magnetShortenerIP}:3739/api/get`;
-const magShoUrl = `http://${magnetShortenerIP}:3738/api`;
 
-bot.onText(/\/stoic/, message => {
-    const chatId = message.chat.id;
-    logger.info(`recieved request /stoic, ${chatId}`);
-    bot.sendMessage(chatId, stoicapi.random());
-});
+const bot = new TelegramBot(token, { polling: true });
+const magShoUrl = `http://${magnetShortenerIP}:3738/api`;
 
 bot.onText(/magnet:\?.+/, async (msg, match) => {
     const chatId = msg.chat.id;
@@ -28,49 +22,21 @@ bot.onText(/magnet:\?.+/, async (msg, match) => {
     bot.sendMessage(chatId, `${magShoUrl}/get?hash=${hash}`);
 });
 
-bot.onText(/episode (.+)/, async (msg, match) => {
+bot.onText(/\/parse (.+)/, async (msg, match) => {
     const chatId = msg.chat.id;
-    logger.info(`recieved request /episode, ${chatId}`);
-    const query = escape(match[0].replace('episode ', ''));
-    const firstRequest = `${pirateGrabber}?url=https://thepiratebay.org/search/${query}`;
-    const { text: magnetUrl } = await request(firstRequest).catch(err =>
-        logger.error(err)
-    );
-    const { text: shortenedUrl } = await request(
-        `${magShoUrl}/shorten?url=${escape(magnetUrl)}`
-    ).catch(err => logger.error(err));
-    bot.sendMessage(chatId, `${magShoUrl}/get?hash=${shortenedUrl}`);
-});
+    logger.info(`recieved request /parse, ${chatId}`);
+    const url = match[1];
 
-bot.onText(/\/sign (.+)/, (msg, match) => {
-    const chatId = msg.chat.id;
-    logger.info(`recieved request /sign, ${chatId}`);
-    const word = match[1];
-    if (word) {
-        bot.sendMessage(chatId, '© 1996-2017 Jolanta Lapiak:');
-        bot.sendMessage(
-            chatId,
-            `https://www.handspeak.com/word/${word[0]}/${word}.mp4`
-        );
+    if (url) {
+        const result = await torba(url);
+        // const opts = {
+        //     parse_mode: 'HTML'
+        // };
+        const content = result.data.content; // .replace(/<body>|<\/body>/g, '');
+        bot.sendMessage(chatId, content);
     } else {
         bot.sendMessage(chatId, 'nope');
     }
-});
-
-bot.onText(/\/conv (\d+) (\w{3}) (\w{3})/, async (msg, match) => {
-    const chatId = msg.chat.id;
-    logger.info(`recieved request /conv, ${chatId}`);
-    const response = await currency(match[1], match[2], match[3]);
-    bot.sendMessage(chatId, response);
-});
-
-bot.onText(/\/start/, msg => {
-    bot.sendMessage(msg.chat.id, '...', {
-        reply_markup: {
-            resize_keyboard: true,
-            keyboard: [['/stoic', '/episode'], ['/conv', 'test'], ['edit']]
-        }
-    });
 });
 
 bot.on('inline_query', async function(msg) {

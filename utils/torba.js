@@ -5,7 +5,7 @@
 const https = require('https');
 const filenamify = require('filenamify');
 const { MERCURY_KEY } = process.env;
-const { simpleRequest } = require('./utils/simple-request');
+const { simpleRequest } = require('./simple-request');
 const translit = require('translit')({
     А: 'A',
     а: 'a',

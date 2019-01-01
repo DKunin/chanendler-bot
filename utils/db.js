@@ -42,7 +42,7 @@ function getUsers() {
     });
 }
 
-function checkUser(user) {
+function checkUser() {
     return new Promise((resolve, reject) => {
         db.all('SELECT * FROM users', function(
             err,
