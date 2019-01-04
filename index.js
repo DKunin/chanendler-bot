@@ -1,7 +1,6 @@
 'use strict';
 
 const TelegramBot = require('node-telegram-bot-api');
-const torba = require('./utils/torba');
 const request = require('./utils/request');
 const logger = require('./utils/logger')();
 
@@ -22,22 +21,19 @@ bot.onText(/magnet:\?.+/, async (msg, match) => {
     bot.sendMessage(chatId, `${magShoUrl}/get?hash=${hash}`);
 });
 
-bot.onText(/\/parse (.+)/, async (msg, match) => {
-    const chatId = msg.chat.id;
-    logger.info(`recieved request /parse, ${chatId}`);
-    const url = match[1];
+// bot.onText(/\/parse (.+)/, async (msg, match) => {
+//     const chatId = msg.chat.id;
+//     logger.info(`recieved request /parse, ${chatId}`);
+//     const url = match[1];
 
-    if (url) {
-        const result = await torba(url);
-        // const opts = {
-        //     parse_mode: 'HTML'
-        // };
-        const content = result.data.content; // .replace(/<body>|<\/body>/g, '');
-        bot.sendMessage(chatId, content);
-    } else {
-        bot.sendMessage(chatId, 'nope');
-    }
-});
+//     if (url) {
+//         const result = await torba(url);
+//         const content = result.data.content;
+//         bot.sendMessage(chatId, content);
+//     } else {
+//         bot.sendMessage(chatId, 'nope');
+//     }
+// });
 
 bot.on('inline_query', async function(msg) {
     const input = msg.query;
