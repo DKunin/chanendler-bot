@@ -3,10 +3,13 @@
 const TelegramBot = require('node-telegram-bot-api');
 const request = require('./utils/request');
 const logger = require('./utils/logger')();
+var Airtable = require('airtable');
+const { AIRTABLE_API_KEY } = process.env;
+
+var base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base('appKdcKBHrCKfhkev');
 
 const token = process.env.CHANENDLER_BONG_BOT;
 const magnetShortenerIP = process.env.CITADEL_IP;
-const bookmarksWebHook = process.env.BOOKMARK_WEBHOOK;
 
 const bot = new TelegramBot(token, { polling: true });
 const magShoUrl = `http://${magnetShortenerIP}:3738/api`;
@@ -21,29 +24,25 @@ bot.onText(/magnet:\?.+/, async (msg, match) => {
     bot.sendMessage(chatId, `${magShoUrl}/get?hash=${hash}`);
 });
 
-bot.on('inline_query', async function(msg) {
-    const input = msg.query;
-    const queryId = msg.id;
+bot.onText(/B:(.+)?/, function(msg, match) {
+    const chatId = msg.chat.id;
+    const query = match[0].split(':')[1].split('/');
 
-    const bkm = await request(
-        `${bookmarksWebHook}/bookmarks?query=${input}&alfred=true`
-    ).catch(err => logger.error(err));
-
-    const response = JSON.parse(bkm.text).items.map((singleLink, index) => {
-        return {
-            id: index,
-            type: 'article',
-            parse_mode: 'markdown',
-            title: singleLink.title,
-            message_text: singleLink.arg
-        };
-    });
-
-    if (input.length > 0) {
-        bot.answerInlineQuery(queryId, response, {})
-            .then(res => logger.info(res))
-            .catch(err => logger.error(err));
-    }
+    base('BloodPressure').create(
+        {
+            date: new Date(),
+            high: parseInt(query[0]),
+            low: parseInt(query[1]),
+            pulse: parseInt(query[2])
+        },
+        function(err, record) {
+            if (err) {
+                bot.sendMessage(chatId, err);
+                return;
+            }
+            bot.sendMessage(chatId, record.getId());
+        }
+    );
 });
 
 logger.info('Chanendler Bong initiated');
