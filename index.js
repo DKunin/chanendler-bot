@@ -14,6 +14,42 @@ const magnetShortenerIP = process.env.CITADEL_IP;
 const bot = new TelegramBot(token, { polling: true });
 const magShoUrl = `http://${magnetShortenerIP}:3738/api`;
 
+function getLatestEntries() {
+    let body = {};
+    return new Promise((resolve, reject) => {
+        base('BloodPressure')
+            .select({
+                // Selecting the first 3 records in Grid view:
+                maxRecords: 10,
+                view: 'Grid view',
+                sort: [{ field: 'date', direction: 'desc' }]
+            })
+            .eachPage(
+                function page(records, fetchNextPage) {
+                    body.low = records.map(function(record) {
+                        return record.get('low');
+                    }).join(',');
+                    body.high = records.map(function(record) {
+                        return record.get('high');
+                    }).join(',');
+                    body.pulse = records.map(function(record) {
+                        return record.get('pulse');
+                    }).join(',');
+
+                    fetchNextPage();
+                },
+                function done(err) {
+                    if (err) {
+                        reject(err);
+                        return;
+                    }
+
+                    resolve(body);
+                }
+            );
+    });
+}
+
 bot.onText(/magnet:\?.+/, async (msg, match) => {
     const chatId = msg.chat.id;
     logger.info(`recieved request /magnet, ${chatId}`);
@@ -40,9 +76,14 @@ bot.onText(/B:(.+)?/, function(msg, match) {
                 bot.sendMessage(chatId, err);
                 return;
             }
-            bot.sendMessage(chatId, record.getId());
+            const latestEntries = await getLatestEntries();
+            getLatestEntries().then(body => {
+                bot.sendMessage(chatId, `https://image-charts.com/chart?cht=ls&chs=500x200&chd=t:${body.high}|${body.low}|${body.pulse}&chds=0,220`);
+            });
         }
     );
 });
+
+
 
 logger.info('Chanendler Bong initiated');
