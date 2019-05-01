@@ -76,7 +76,6 @@ bot.onText(/B:(.+)?/, function(msg, match) {
                 bot.sendMessage(chatId, err);
                 return;
             }
-            const latestEntries = await getLatestEntries();
             getLatestEntries().then(body => {
                 bot.sendMessage(chatId, `https://image-charts.com/chart?cht=ls&chs=500x200&chd=t:${body.high}|${body.low}|${body.pulse}&chds=0,220`);
             });
