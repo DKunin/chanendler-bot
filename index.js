@@ -28,13 +28,13 @@ function getLatestEntries() {
                 function page(records, fetchNextPage) {
                     body.low = records.map(function(record) {
                         return record.get('low');
-                    }).join(',');
+                    }).reverse().join(',');
                     body.high = records.map(function(record) {
                         return record.get('high');
-                    }).join(',');
+                    }).reverse().join(',');
                     body.pulse = records.map(function(record) {
                         return record.get('pulse');
-                    }).join(',');
+                    }).reverse().join(',');
 
                     fetchNextPage();
                 },
